@@ -7,9 +7,10 @@ const { marked } = require('marked');
 
 const app = express();
 app.use(cors({
-  origin: 'https://ask-asv.onrender.com',  // or '*' for testing,,,
+  origin: ['https://ask-asv.onrender.com', 'https://www.ask-asv.onrender.com'],
   methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 app.use(express.json());
 
@@ -23,8 +24,14 @@ app.use('/api/history', require('./routes/history'));
 app.use('/api/faqs', require('./routes/faqs'));
 app.use('/api/sessions', require('./routes/sessions'));
 
+// Add explicit OPTIONS handler for PDF export endpoint
+app.options('/api/export-pdf', cors());
+
 // Add Puppeteer PDF export endpoint
 app.post('/api/export-pdf', async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://ask-asv.onrender.com');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   const { messages, userLabel } = req.body;
   let md = '';
   messages.forEach(m => {
