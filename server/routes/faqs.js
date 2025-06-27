@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
 });
 
 // DELETE /api/faqs - Delete all FAQ chunks
-router.delete('/', async (req, res) => {
+router.delete('/all', async (req, res) => {
   try {
     await FAQ.deleteMany({});
     res.json({ success: true });

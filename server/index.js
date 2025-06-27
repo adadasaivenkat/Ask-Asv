@@ -84,6 +84,10 @@ app.post('/api/export-pdf', async (req, res) => {
   res.send(pdfBuffer);
 });
 
+app.get("/", (req, res) => {
+  res.send("Ask Asv backend is running!");
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Ask Asv backend running on port ${PORT}`);

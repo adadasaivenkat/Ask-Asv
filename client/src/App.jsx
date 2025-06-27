@@ -121,7 +121,7 @@ const AdminUpload = () => {
   };
   const confirmDeleteAll = async () => {
     setShowDeleteModal(false);
-    await fetch(`${API_URL}/api/faqs`, { method: 'DELETE' });
+    await fetch(`${API_URL}/api/faqs/all`, { method: 'DELETE' });
     await fetchFaqs();
   };
   const cancelDeleteAll = () => {
