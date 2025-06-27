@@ -1,10 +1,13 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const puppeteer = require('puppeteer');
 const { marked } = require('marked');
 const path = require('path');
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -13,14 +16,6 @@ app.use(express.json());
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI).then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
-
-// Serve static files from client/dist
-app.use(express.static(path.join(__dirname, '../client/dist')));
-
-// Handle frontend routes (for React/Vite routing)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-});
 
 // Routes
 app.use('/api/chat', require('./routes/chat'));
@@ -95,6 +90,14 @@ app.post('/api/export-pdf', async (req, res) => {
 
 app.get("/", (_req, res) => {
   res.send("Ask Asv backend is running!");
+});
+
+// Serve static files from client/dist
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// Handle frontend routes (for React/Vite routing)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
