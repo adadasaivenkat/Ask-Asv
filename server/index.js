@@ -1,13 +1,9 @@
-const dotenv = require('dotenv');
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const puppeteer = require('puppeteer');
 const { marked } = require('marked');
-const path = require('path');
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -86,18 +82,6 @@ app.post('/api/export-pdf', async (req, res) => {
     'Content-Length': pdfBuffer.length
   });
   res.send(pdfBuffer);
-});
-
-app.get("/", (_req, res) => {
-  res.send("Ask Asv backend is running!");
-});
-
-// Serve static files from client/dist
-app.use(express.static(path.join(__dirname, '../client/dist')));
-
-// Handle frontend routes (for React/Vite routing)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
