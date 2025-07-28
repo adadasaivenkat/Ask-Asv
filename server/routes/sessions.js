@@ -24,9 +24,16 @@ router.post('/', async (req, res) => {
 router.post('/:sessionId/message', async (req, res) => {
   const { sessionId } = req.params;
   const { sender, text, source, confidence } = req.body;
+  
+  // Validate required fields
+  if (!sender || !text || text.trim() === '') {
+    return res.status(400).json({ error: 'sender and text are required' });
+  }
+  
   const session = await Session.findById(sessionId);
   if (!session) return res.status(404).json({ error: 'Session not found' });
-  session.messages.push({ sender, text, source, confidence });
+  
+  session.messages.push({ sender, text: text.trim(), source, confidence });
   await session.save();
   res.json(session);
 });

@@ -3,21 +3,30 @@ const router = express.Router();
 const Conversation = require('../models/Conversation');
 const axios = require('axios');
 const FAQ = require('../models/FAQ');
-require('dotenv').config();
+
+// Suppress dotenv debug messages
+process.env.DOTENV_DEBUG = 'false';
+process.env.DEBUG = '';
+const originalLog = console.log;
+console.log = () => {};
+require('dotenv').config({ silent: true, debug: false });
+console.log = originalLog;
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // POST /api/chat
 router.post('/', async (req, res) => {
   const { userId, message } = req.body;
-  if (!userId || !message) return res.status(400).json({ error: 'userId and message required' });
+  if (!userId || !message || message.trim() === '') {
+    return res.status(400).json({ error: 'userId and message required' });
+  }
 
   // Find or create conversation
   let convo = await Conversation.findOne({ userId });
   if (!convo) {
     convo = new Conversation({ userId, messages: [] });
   }
-  convo.messages.push({ sender: 'user', text: message });
+  convo.messages.push({ sender: 'user', text: message.trim() });
 
   // Basic string matching for FAQ
   let botReply = null;
@@ -38,7 +47,7 @@ router.post('/', async (req, res) => {
       }
     }
     if (bestFaq) {
-      botReply = bestFaq.answer;
+      botReply = bestFaq.answer + ' ★';
       source = 'faq';
       confidence = 1.0;
     }
@@ -72,7 +81,12 @@ router.post('/', async (req, res) => {
     }
   }
 
-  convo.messages.push({ sender: 'bot', text: botReply, source, confidence });
+  // Ensure botReply is not empty
+  if (!botReply || botReply.trim() === '') {
+    botReply = 'Sorry, I could not get a response.';
+  }
+
+  convo.messages.push({ sender: 'bot', text: botReply.trim(), source, confidence });
   await convo.save();
 
   res.json({ reply: botReply, messages: convo.messages, source, confidence });
